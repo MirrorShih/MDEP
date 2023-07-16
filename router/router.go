@@ -26,7 +26,7 @@ func register(method func(engine *gin.Engine, path string, handler func(c *gin.C
 }
 
 func init() {
-	register(GET, "/api/binary", controller.DetectorList)
+	register(GET, "/api/detector", controller.DetectorList)
 }
 
 func NewRouter() *gin.Engine {

@@ -21,12 +21,27 @@ func GET(engine *gin.Engine, path string, handler func(c *gin.Context)) {
 func POST(engine *gin.Engine, path string, handler func(c *gin.Context)) {
 	engine.POST(path, handler)
 }
+
+func PUT(engine *gin.Engine, path string, handler func(c *gin.Context)) {
+	engine.PUT(path, handler)
+}
+
+func DELETE(engine *gin.Engine, path string, handler func(c *gin.Context)) {
+	engine.DELETE(path, handler)
+}
+
 func register(method func(engine *gin.Engine, path string, handler func(c *gin.Context)), path string, handler func(c *gin.Context)) {
 	routes = append(routes, Route{method, path, handler})
 }
 
 func init() {
-	register(GET, "/api/detector", controller.DetectorList)
+	register(GET, "/api/detector", controller.GetDetectorList)
+	register(POST, "api/detector", controller.CreateDetector)
+	register(POST, "api/task", controller.CreateTask)
+	register(GET, "api/report", controller.GetReportList)
+	register(GET, "api/report/:id", controller.GetReport)
+	register(PUT, "api/detector/:id", controller.UpdateDetector)
+	register(DELETE, "api/detector/:id", controller.DeleteDetector)
 }
 
 func NewRouter() *gin.Engine {

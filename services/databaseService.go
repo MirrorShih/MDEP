@@ -24,7 +24,7 @@ type DetectorRes struct {
 }
 
 type ReportRes struct {
-	Id             primitive.ObjectID `json:"detector_id" bson:"_id,omitempty"`
+	Id             primitive.ObjectID `json:"report_id" bson:"_id,omitempty"`
 	FuncType       string             `json:"function_type" bson:"function_type,omitempty"`
 	Accuracy       float64            `json:"accuracy" bson:"accuracy,omitempty"`
 	FP             float64            `json:"fp" bson:"fp,omitempty"`
@@ -33,8 +33,8 @@ type ReportRes struct {
 	Recall         float64            `json:"recall" bson:"recall,omitempty"`
 	F1             float64            `json:"f1" bson:"f1,omitempty"`
 	TestTime       float64            `json:"testing_time" bson:"testing_time,omitempty"`
-	TestSampleRun  float64            `json:"testing_sample_run" bson:"testing_sample_run,omitempty"`
-	TotalSampleRun float64            `json:"total_sample_run" bson:"total_sample_run,omitempty"`
+	TestSampleNum  float64            `json:"testing_sample_num" bson:"testing_sample_num,omitempty"`
+	TotalSampleNum float64            `json:"total_sample_num" bson:"total_sample_num,omitempty"`
 }
 
 var MongoClient = NewMongoDBClient(os.Getenv("MONGODB_URI"))
@@ -93,4 +93,15 @@ func (MongoClient *MongoDBClient) ListDetector(databaseName string, collectionNa
 		log.Println(err.Error())
 	}
 	return results
+}
+
+func (mongoClient *MongoDBClient) GetCertainReport(databaseName string, collectionName string, filter bson.D) *ReportRes {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	var result *ReportRes
+	err := collection.FindOne(mongoClient.ctx, filter).Decode(&result)
+	if err != nil {
+		log.Println("find data failed")
+		log.Println(err.Error())
+	}
+	return result
 }

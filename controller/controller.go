@@ -13,8 +13,8 @@ func GetDetectorList(c *gin.Context) {
 	projection := bson.D{{"detector_id", 1}, {"detector_name", 1}}
 	results := services.MongoClient.ListDetector("MDEP", "detector", projection)
 	var response []bson.M
-	for _, res := range results {
-		response = append(response, bson.M{"detector_id": res.Id.Hex(), "detector_name": res.Name})
+	for _, result := range results {
+		response = append(response, bson.M{"detector_id": result.Id.Hex(), "detector_name": result.Name})
 	}
 	c.JSON(http.StatusOK, response)
 }
@@ -28,7 +28,17 @@ func CreateTask(c *gin.Context) {
 }
 
 func GetReportList(c *gin.Context) {
-
+	results := services.MongoClient.ListReport("MDEP", "report")
+	var response []bson.M
+	for _, result := range results {
+		response = append(response, bson.M{"report_id": result.Id.Hex(), "function_type": result.FuncType,
+			"accuracy": result.Accuracy, "false_positive": result.FP,
+			"false_negative": result.FN, "precision": result.Precision,
+			"recall": result.Recall, "f1_score": result.F1,
+			"testing_time": result.TestTime, "testing_sample_num": result.TestSampleNum,
+			"total_sample_num": result.TotalSampleNum})
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func GetReport(c *gin.Context) {

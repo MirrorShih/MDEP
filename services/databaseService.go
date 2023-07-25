@@ -95,6 +95,22 @@ func (MongoClient *MongoDBClient) ListDetector(databaseName string, collectionNa
 	return results
 }
 
+func (MongoClient *MongoDBClient) ListReport(databaseName string, collectionName string) []ReportRes {
+	collection := MongoClient.client.Database(databaseName).Collection(collectionName)
+	cursor, err := collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Println(err.Error())
+	}
+	var results []ReportRes
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		panic(err)
+	}
+	if err != nil {
+		log.Println(err.Error())
+	}
+	return results
+}
+
 func (mongoClient *MongoDBClient) GetCertainReport(databaseName string, collectionName string, filter bson.D) *ReportRes {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	var result *ReportRes

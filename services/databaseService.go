@@ -95,6 +95,27 @@ func (MongoClient *MongoDBClient) ListDetector(databaseName string, collectionNa
 	return results
 }
 
+func (mongoClient *MongoDBClient) UpdateDetector(databaseName string, collectionName string, filter bson.D) bool {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	opts := options.Update().SetUpsert(true)
+	_, err := collection.UpdateOne(mongoClient.ctx, filter, opts)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func (mongoClient *MongoDBClient) GetCertainDetector(databaseName string, collectionName string, filter bson.D) *DetectorRes {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	var result *DetectorRes
+	err := collection.FindOne(mongoClient.ctx, filter).Decode(&result)
+	if err != nil {
+		log.Println("find data failed")
+		log.Println(err.Error())
+	}
+	return result
+}
+
 func (MongoClient *MongoDBClient) ListReport(databaseName string, collectionName string) []ReportRes {
 	collection := MongoClient.client.Database(databaseName).Collection(collectionName)
 	cursor, err := collection.Find(context.TODO(), bson.D{})

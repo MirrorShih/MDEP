@@ -55,7 +55,13 @@ func GetReport(c *gin.Context) {
 }
 
 func UpdateDetector(c *gin.Context) {
-
+	target := c.Param("detector_id")
+	id, _ := primitive.ObjectIDFromHex(target)
+	filter := bson.D{bson.E{Key: "_id", Value: id}}
+	if services.MongoClient.UpdateDetector("MDEP", "detector", filter) {
+		result := services.MongoClient.GetCertainDetector("MDEP", "detector", filter)
+		c.JSON(http.StatusOK, gin.H{"detector_id": result.Id.Hex(), "detector_name": result.Name})
+	}
 }
 
 func DeleteDetector(c *gin.Context) {

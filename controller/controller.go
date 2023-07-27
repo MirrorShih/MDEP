@@ -10,8 +10,7 @@ import (
 )
 
 func GetDetectorList(c *gin.Context) {
-	projection := bson.D{{"detector_id", 1}, {"detector_name", 1}}
-	results := services.MongoClient.ListDetector("MDEP", "detector", projection)
+	results := services.MongoClient.ListDetector("MDEP", "detector")
 	var response []bson.M
 	for _, result := range results {
 		response = append(response, bson.M{"detector_id": result.Id.Hex(), "detector_name": result.Name})
@@ -58,7 +57,7 @@ func UpdateDetector(c *gin.Context) {
 	target := c.Param("detector_id")
 	id, _ := primitive.ObjectIDFromHex(target)
 	filter := bson.D{bson.E{Key: "_id", Value: id}}
-	if services.MongoClient.UpdateDetector("MDEP", "detector", filter) {
+	if services.MongoClient.PatchDetector("MDEP", "detector", filter) {
 		result := services.MongoClient.GetCertainDetector("MDEP", "detector", filter)
 		c.JSON(http.StatusOK, gin.H{"detector_id": result.Id.Hex(), "detector_name": result.Name})
 	}

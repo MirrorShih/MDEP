@@ -78,10 +78,9 @@ func PingMongo(client *mongo.Client, ctx context.Context) error {
 	return nil
 }
 
-func (MongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string, projection bson.D) []DetectorRes {
+func (MongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string) []DetectorRes {
 	collection := MongoClient.client.Database(databaseName).Collection(collectionName)
-	opts := options.Find().SetProjection(projection)
-	cursor, err := collection.Find(MongoClient.ctx, opts)
+	cursor, err := collection.Find(context.TODO(), bson.D{{}})
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -95,7 +94,7 @@ func (MongoClient *MongoDBClient) ListDetector(databaseName string, collectionNa
 	return results
 }
 
-func (mongoClient *MongoDBClient) UpdateDetector(databaseName string, collectionName string, filter bson.D) bool {
+func (mongoClient *MongoDBClient) PatchDetector(databaseName string, collectionName string, filter bson.D) bool {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	opts := options.Update().SetUpsert(true)
 	_, err := collection.UpdateOne(mongoClient.ctx, filter, opts)

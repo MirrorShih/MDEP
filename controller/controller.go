@@ -41,7 +41,7 @@ func GetReportList(c *gin.Context) {
 }
 
 func GetReport(c *gin.Context) {
-	target := c.Param("report_id")
+	target := c.Param("id")
 	id, _ := primitive.ObjectIDFromHex(target)
 	filter := bson.D{bson.E{Key: "_id", Value: id}}
 	result := services.MongoClient.GetCertainReport("MDEP", "report", filter)
@@ -54,7 +54,7 @@ func GetReport(c *gin.Context) {
 }
 
 func UpdateDetector(c *gin.Context) {
-	target := c.Param("detector_id")
+	target := c.Param("id")
 	id, _ := primitive.ObjectIDFromHex(target)
 	filter := bson.D{bson.E{Key: "_id", Value: id}}
 	if services.MongoClient.PatchDetector("MDEP", "detector", filter) {

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"MDEP/services"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -64,5 +65,13 @@ func UpdateDetector(c *gin.Context) {
 }
 
 func DeleteDetector(c *gin.Context) {
-	c.JSON(http.StatusNoContent, gin.H{})
+	target := c.Param("id")
+	id, _ := primitive.ObjectIDFromHex(target)
+	filter := bson.D{bson.E{Key: "_id", Value: id}}
+	result := services.MongoClient.DeleteDetector("MDEP", "detector", filter)
+	if result == true {
+		c.JSON(http.StatusOK, gin.H{})
+	} else {
+		log.Println("delete failed")
+	}
 }

@@ -78,6 +78,16 @@ func PingMongo(client *mongo.Client, ctx context.Context) error {
 	return nil
 }
 
+func (mongoClient *MongoDBClient) InsertDetector(databaseName string, collectionName string, d DetectorRes) bool {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	_, err := collection.InsertOne(MongoClient.ctx, d)
+	if err != nil {
+		return false
+	}
+	log.Println("detector inserted")
+	return true
+}
+
 func (MongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string) []DetectorRes {
 	collection := MongoClient.client.Database(databaseName).Collection(collectionName)
 	cursor, err := collection.Find(context.TODO(), bson.D{{}})
@@ -113,6 +123,26 @@ func (mongoClient *MongoDBClient) GetCertainDetector(databaseName string, collec
 		log.Println(err.Error())
 	}
 	return result
+}
+
+func (mongoClient *MongoDBClient) DeleteDetector(databaseName string, collectionName string, filter bson.D) bool {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	_, err := collection.DeleteOne(MongoClient.ctx, filter)
+	if err != nil {
+		return false
+	}
+	log.Println("report inserted")
+	return true
+}
+
+func (mongoClient *MongoDBClient) InsertReport(databaseName string, collectionName string, report ReportRes) bool {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	_, err := collection.InsertOne(MongoClient.ctx, report)
+	if err != nil {
+		return false
+	}
+	log.Println("report inserted")
+	return true
 }
 
 func (MongoClient *MongoDBClient) ListReport(databaseName string, collectionName string) []ReportRes {

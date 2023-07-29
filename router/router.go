@@ -36,12 +36,12 @@ func register(method func(engine *gin.Engine, path string, handler func(c *gin.C
 
 func init() {
 	register(GET, "/api/detector", controller.GetDetectorList)
-	register(POST, "api/detector", controller.CreateDetector)
-	register(POST, "api/task", controller.CreateTask)
-	register(GET, "api/report", controller.GetReportList)
-	register(GET, "api/report/:id", controller.GetReport)
-	register(PUT, "api/detector/:id", controller.UpdateDetector)
-	register(DELETE, "api/detector/:id", controller.DeleteDetector)
+	register(POST, "/api/detector", controller.CreateDetector)
+	register(POST, "/api/task", controller.CreateTask)
+	register(GET, "/api/report", controller.GetReportList)
+	register(GET, "/api/report/:id", controller.GetReport)
+	register(PUT, "/api/detector/:id", controller.UpdateDetector)
+	register(DELETE, "/api/detector/:id", controller.DeleteDetector)
 }
 
 func NewRouter() *gin.Engine {

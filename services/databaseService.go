@@ -2,15 +2,14 @@ package services
 
 import (
 	"context"
-	"log"
-	"os"
-
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"log"
+	"os"
 )
 
 type MongoDBClient struct {
@@ -88,8 +87,8 @@ func (mongoClient *MongoDBClient) InsertDetector(databaseName string, collection
 	return true
 }
 
-func (MongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string) []DetectorRes {
-	collection := MongoClient.client.Database(databaseName).Collection(collectionName)
+func (mongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string) []DetectorRes {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	cursor, err := collection.Find(context.TODO(), bson.D{{}})
 	if err != nil {
 		log.Println(err.Error())
@@ -145,8 +144,8 @@ func (mongoClient *MongoDBClient) InsertReport(databaseName string, collectionNa
 	return true
 }
 
-func (MongoClient *MongoDBClient) ListReport(databaseName string, collectionName string) []ReportRes {
-	collection := MongoClient.client.Database(databaseName).Collection(collectionName)
+func (mongoClient *MongoDBClient) ListReport(databaseName string, collectionName string) []ReportRes {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	cursor, err := collection.Find(context.TODO(), bson.D{})
 	if err != nil {
 		log.Println(err.Error())

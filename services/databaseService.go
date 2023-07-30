@@ -2,12 +2,15 @@ package services
 
 import (
 	"context"
+	"fmt"
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"io/ioutil"
 	"log"
 	"os"
 )
@@ -169,4 +172,34 @@ func (mongoClient *MongoDBClient) GetCertainReport(databaseName string, collecti
 		log.Println(err.Error())
 	}
 	return result
+}
+
+func (mongoClient *MongoDBClient) UploadFile(databaseName, file, filename string) {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bucket, err := gridfs.NewBucket(
+		mongoClient.client.Database(databaseName),
+	)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+	uploadStream, err := bucket.OpenUploadStream(
+		filename,
+	)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer uploadStream.Close()
+
+	fileSize, err := uploadStream.Write(data)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+	log.Printf("Write file to DB was successful. File size: %d M\n", fileSize)
+	log.Println(uploadStream.FileID)
 }

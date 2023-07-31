@@ -131,6 +131,8 @@ func (mongoClient *MongoDBClient) GetCertainDetector(databaseName string, collec
 
 func (mongoClient *MongoDBClient) DeleteDetector(databaseName string, collectionName string, filter bson.D) bool {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	fileId := mongoClient.GetCertainDetector(databaseName, collectionName, filter).FileId
+	mongoClient.DeleteFile(databaseName, fileId)
 	_, err := collection.DeleteOne(MongoClient.ctx, filter)
 	if err != nil {
 		return false
@@ -204,4 +206,17 @@ func (mongoClient *MongoDBClient) UploadFile(databaseName, file, filename string
 	}
 	log.Printf("Write file to DB was successful. File size: %d M\n", fileSize)
 	return uploadStream.FileID.(primitive.ObjectID)
+}
+
+func (mongoClient *MongoDBClient) DeleteFile(databaseName string, fileId primitive.ObjectID) {
+	bucket, err := gridfs.NewBucket(
+		mongoClient.client.Database(databaseName),
+	)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+	if err := bucket.Delete(fileId); err != nil {
+		panic(err)
+	}
 }

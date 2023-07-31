@@ -20,7 +20,11 @@ func GetDetectorList(c *gin.Context) {
 }
 
 func GetDetector(c *gin.Context) {
-
+	target := c.Param("id")
+	id, _ := primitive.ObjectIDFromHex(target)
+	filter := bson.D{bson.E{Key: "_id", Value: id}}
+	results := services.MongoClient.GetCertainDetector("MDEP", "detector", filter)
+	c.JSON(http.StatusOK, results)
 }
 
 func CreateDetector(c *gin.Context) {

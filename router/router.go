@@ -36,6 +36,7 @@ func register(method func(engine *gin.Engine, path string, handler func(c *gin.C
 
 func init() {
 	register(GET, "/api/detector", controller.GetDetectorList)
+	register(GET, "/api/detector/:id", controller.GetDetector)
 	register(POST, "/api/detector", controller.CreateDetector)
 	register(POST, "/api/task", controller.CreateTask)
 	register(GET, "/api/report", controller.GetReportList)

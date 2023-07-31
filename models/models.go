@@ -2,13 +2,13 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type DetectorRes struct {
+type Detector struct {
 	Id     primitive.ObjectID `json:"detector_id" bson:"_id,omitempty"`
 	Name   string             `json:"detector_name" bson:"name,omitempty"`
 	FileId primitive.ObjectID `json:"file_id" bson:"file_id,omitempty"`
 }
 
-type ReportRes struct {
+type Report struct {
 	Id             primitive.ObjectID `json:"report_id" bson:"_id,omitempty"`
 	FuncType       string             `json:"function_type" bson:"function_type,omitempty"`
 	Accuracy       float64            `json:"accuracy" bson:"accuracy,omitempty"`

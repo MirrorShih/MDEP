@@ -13,7 +13,7 @@ import (
 
 func GetDetectorList(c *gin.Context) {
 	results := services.MongoClient.ListDetector("MDEP", "detector")
-	var response []models.DetectorRes
+	var response []models.Detector
 	for _, result := range results {
 		response = append(response, result)
 	}
@@ -46,7 +46,7 @@ func CreateTask(c *gin.Context) {
 
 func GetReportList(c *gin.Context) {
 	results := services.MongoClient.ListReport("MDEP", "report")
-	var response []models.ReportRes
+	var response []models.Report
 	for _, result := range results {
 		response = append(response, result)
 	}

@@ -65,7 +65,7 @@ func PingMongo(client *mongo.Client, ctx context.Context) error {
 func (mongoClient *MongoDBClient) InsertDetector(databaseName, file, filename string, collectionName string) bool {
 	detectorID := mongoClient.UploadFile(databaseName, file, filename)
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	_, err := collection.InsertOne(MongoClient.ctx, models.DetectorRes{primitive.NewObjectID(), filename, detectorID})
+	_, err := collection.InsertOne(MongoClient.ctx, models.Detector{primitive.NewObjectID(), filename, detectorID})
 	if err != nil {
 		return false
 	}
@@ -73,13 +73,13 @@ func (mongoClient *MongoDBClient) InsertDetector(databaseName, file, filename st
 	return true
 }
 
-func (mongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string) []models.DetectorRes {
+func (mongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string) []models.Detector {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	cursor, err := collection.Find(context.TODO(), bson.D{{}})
 	if err != nil {
 		log.Println(err.Error())
 	}
-	var results []models.DetectorRes
+	var results []models.Detector
 	if err = cursor.All(context.TODO(), &results); err != nil {
 		panic(err)
 	}
@@ -100,9 +100,9 @@ func (mongoClient *MongoDBClient) PatchDetector(databaseName string, collectionN
 	return true
 }
 
-func (mongoClient *MongoDBClient) GetCertainDetector(databaseName string, collectionName string, filter bson.D) *models.DetectorRes {
+func (mongoClient *MongoDBClient) GetCertainDetector(databaseName string, collectionName string, filter bson.D) *models.Detector {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	var result *models.DetectorRes
+	var result *models.Detector
 	err := collection.FindOne(mongoClient.ctx, filter).Decode(&result)
 	if err != nil {
 		log.Println("find data failed")
@@ -123,7 +123,7 @@ func (mongoClient *MongoDBClient) DeleteDetector(databaseName string, collection
 	return true
 }
 
-func (mongoClient *MongoDBClient) InsertReport(databaseName string, collectionName string, report models.ReportRes) bool {
+func (mongoClient *MongoDBClient) InsertReport(databaseName string, collectionName string, report models.Report) bool {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	_, err := collection.InsertOne(MongoClient.ctx, report)
 	if err != nil {
@@ -133,13 +133,13 @@ func (mongoClient *MongoDBClient) InsertReport(databaseName string, collectionNa
 	return true
 }
 
-func (mongoClient *MongoDBClient) ListReport(databaseName string, collectionName string) []models.ReportRes {
+func (mongoClient *MongoDBClient) ListReport(databaseName string, collectionName string) []models.Report {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	cursor, err := collection.Find(context.TODO(), bson.D{})
 	if err != nil {
 		log.Println(err.Error())
 	}
-	var results []models.ReportRes
+	var results []models.Report
 	if err = cursor.All(context.TODO(), &results); err != nil {
 		panic(err)
 	}
@@ -149,9 +149,9 @@ func (mongoClient *MongoDBClient) ListReport(databaseName string, collectionName
 	return results
 }
 
-func (mongoClient *MongoDBClient) GetCertainReport(databaseName string, collectionName string, filter bson.D) *models.ReportRes {
+func (mongoClient *MongoDBClient) GetCertainReport(databaseName string, collectionName string, filter bson.D) *models.Report {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	var result *models.ReportRes
+	var result *models.Report
 	err := collection.FindOne(mongoClient.ctx, filter).Decode(&result)
 	if err != nil {
 		log.Println("find data failed")

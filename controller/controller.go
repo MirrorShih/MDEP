@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"MDEP/models"
 	"MDEP/services"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,7 +13,7 @@ import (
 
 func GetDetectorList(c *gin.Context) {
 	results := services.MongoClient.ListDetector("MDEP", "detector")
-	var response []services.DetectorRes
+	var response []models.DetectorRes
 	for _, result := range results {
 		response = append(response, result)
 	}
@@ -45,7 +46,7 @@ func CreateTask(c *gin.Context) {
 
 func GetReportList(c *gin.Context) {
 	results := services.MongoClient.ListReport("MDEP", "report")
-	var response []services.ReportRes
+	var response []models.ReportRes
 	for _, result := range results {
 		response = append(response, result)
 	}

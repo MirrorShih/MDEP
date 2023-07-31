@@ -39,6 +39,7 @@ func CreateDetector(c *gin.Context) {
 }
 
 func CreateTask(c *gin.Context) {
+	// TODO
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
@@ -60,6 +61,7 @@ func GetReport(c *gin.Context) {
 }
 
 func UpdateDetector(c *gin.Context) {
+	// TODO
 	target := c.Param("id")
 	id, _ := primitive.ObjectIDFromHex(target)
 	filter := bson.D{bson.E{Key: "_id", Value: id}}

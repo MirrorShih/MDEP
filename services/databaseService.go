@@ -109,6 +109,7 @@ func (mongoClient *MongoDBClient) ListDetector(databaseName string, collectionNa
 }
 
 func (mongoClient *MongoDBClient) PatchDetector(databaseName string, collectionName string, filter bson.D) bool {
+	// TODO
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	opts := options.Update().SetUpsert(true)
 	_, err := collection.UpdateOne(mongoClient.ctx, filter, opts)

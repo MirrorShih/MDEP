@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
+	"os"
 )
 
 func GetDetectorList(c *gin.Context) {
@@ -18,23 +19,18 @@ func GetDetectorList(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func GetDetector(c *gin.Context) {
+
+}
+
 func CreateDetector(c *gin.Context) {
 	uploadFile, _ := c.FormFile("file")
 	log.Println(uploadFile.Filename)
 	uploadFolder := "/home/MDEP/upload/"
 	uploadFilePath := uploadFolder + uploadFile.Filename
+	defer os.Remove(uploadFilePath)
 	c.SaveUploadedFile(uploadFile, uploadFilePath)
-	services.MongoClient.UploadFile("MDEP", uploadFilePath, uploadFile.Filename)
-	/*file, _ := os.Open(uploadFilePath)
-	hash := sha256.New()
-	_, err := io.Copy(hash, file)
-	if err != nil {
-		log.Fatalf("%s\n", err)
-	}
-	file.Close()
-	hashString := hex.EncodeToString(hash.Sum(nil))
-	os.Rename(uploadFilePath, uploadFolder+hashString)
-	uploadFilePath = uploadFolder + hashString*/
+	services.MongoClient.InsertDetector("MDEP", uploadFilePath, uploadFile.Filename, "detector")
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 

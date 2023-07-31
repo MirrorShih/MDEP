@@ -21,8 +21,9 @@ type MongoDBClient struct {
 }
 
 type DetectorRes struct {
-	Id   primitive.ObjectID `json:"detector_id" bson:"_id,omitempty"`
-	Name string             `json:"detector_name" bson:"name,omitempty"`
+	Id     primitive.ObjectID `json:"detector_id" bson:"_id,omitempty"`
+	Name   string             `json:"detector_name" bson:"name,omitempty"`
+	FileId primitive.ObjectID `json:"file_id" bson:"file_id,omitempty"`
 }
 
 type ReportRes struct {
@@ -80,9 +81,10 @@ func PingMongo(client *mongo.Client, ctx context.Context) error {
 	return nil
 }
 
-func (mongoClient *MongoDBClient) InsertDetector(databaseName string, collectionName string, d DetectorRes) bool {
+func (mongoClient *MongoDBClient) InsertDetector(databaseName, file, filename string, collectionName string) bool {
+	detectorID := mongoClient.UploadFile(databaseName, file, filename)
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	_, err := collection.InsertOne(MongoClient.ctx, d)
+	_, err := collection.InsertOne(MongoClient.ctx, DetectorRes{primitive.NewObjectID(), filename, detectorID})
 	if err != nil {
 		return false
 	}
@@ -174,7 +176,7 @@ func (mongoClient *MongoDBClient) GetCertainReport(databaseName string, collecti
 	return result
 }
 
-func (mongoClient *MongoDBClient) UploadFile(databaseName, file, filename string) {
+func (mongoClient *MongoDBClient) UploadFile(databaseName, file, filename string) primitive.ObjectID {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		log.Fatal(err)
@@ -201,5 +203,5 @@ func (mongoClient *MongoDBClient) UploadFile(databaseName, file, filename string
 		os.Exit(1)
 	}
 	log.Printf("Write file to DB was successful. File size: %d M\n", fileSize)
-	log.Println(uploadStream.FileID)
+	return uploadStream.FileID.(primitive.ObjectID)
 }

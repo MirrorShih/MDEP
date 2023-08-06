@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
 
   backend:
@@ -7,6 +7,10 @@ services:
       - '8000:8000'
     depends_on:
       -  mongo
+    volumes:
+      -  type: bind
+         source: /mnt/dataset/
+         target: /mnt/dataset/
 
   mongo:
     image: mongo

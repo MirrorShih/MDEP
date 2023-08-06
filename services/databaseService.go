@@ -4,7 +4,6 @@ import (
 	"MDEP/models"
 	"bytes"
 	"context"
-	"fmt"
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -170,28 +169,25 @@ func (mongoClient *MongoDBClient) GetCertainReport(databaseName string, collecti
 func (mongoClient *MongoDBClient) UploadFile(databaseName, file, filename string) primitive.ObjectID {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	bucket, err := gridfs.NewBucket(
 		mongoClient.client.Database(databaseName),
 	)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		log.Print(err)
 	}
 	uploadStream, err := bucket.OpenUploadStream(
 		filename,
 	)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Println(err)
 	}
 	defer uploadStream.Close()
 
 	fileSize, err := uploadStream.Write(data)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		log.Print(err)
 	}
 	log.Printf("Write file to DB was successful. File size: %d M\n", fileSize)
 	return uploadStream.FileID.(primitive.ObjectID)
@@ -202,8 +198,7 @@ func (mongoClient *MongoDBClient) DeleteFile(databaseName string, fileId primiti
 		mongoClient.client.Database(databaseName),
 	)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		log.Print(err)
 	}
 	if err := bucket.Delete(fileId); err != nil {
 		panic(err)
@@ -215,8 +210,7 @@ func (mongoClient *MongoDBClient) DownloadFile(databaseName string, fileId primi
 		mongoClient.client.Database(databaseName),
 	)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		log.Print(err)
 	}
 	fileBuffer := bytes.NewBuffer(nil)
 	if _, err := bucket.DownloadToStream(fileId, fileBuffer); err != nil {

@@ -16,7 +16,7 @@ RUN go build ./main.go
 FROM base
 COPY --from=builder /go/src ./src
 RUN mv ./GraphTheoryDetector/ ./src/GraphTheoryDetector
-RUN mkdir ./home/MDEP/ && mkdir ./home/MDEP/upload
+RUN mkdir ./home/MDEP/ && mkdir ./home/MDEP/upload && mkdir ./home/MDEP/task
 WORKDIR ./src
 ENTRYPOINT ["./main"]
 EXPOSE 8000

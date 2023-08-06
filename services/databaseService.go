@@ -2,6 +2,7 @@ package services
 
 import (
 	"MDEP/models"
+	"bytes"
 	"context"
 	"fmt"
 	_ "github.com/joho/godotenv/autoload"
@@ -123,6 +124,12 @@ func (mongoClient *MongoDBClient) DeleteDetector(databaseName string, collection
 	return true
 }
 
+func (mongoClient *MongoDBClient) DownloadDetector(databaseName string, collectionName string, filter bson.D, downloadPath string) bool {
+	fileId := mongoClient.GetCertainDetector(databaseName, collectionName, filter).FileId
+	mongoClient.DownloadFile(databaseName, fileId, downloadPath)
+	return true
+}
+
 func (mongoClient *MongoDBClient) InsertReport(databaseName string, collectionName string, report models.Report) bool {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	_, err := collection.InsertOne(MongoClient.ctx, report)
@@ -201,4 +208,19 @@ func (mongoClient *MongoDBClient) DeleteFile(databaseName string, fileId primiti
 	if err := bucket.Delete(fileId); err != nil {
 		panic(err)
 	}
+}
+
+func (mongoClient *MongoDBClient) DownloadFile(databaseName string, fileId primitive.ObjectID, downloadPath string) {
+	bucket, err := gridfs.NewBucket(
+		mongoClient.client.Database(databaseName),
+	)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+	fileBuffer := bytes.NewBuffer(nil)
+	if _, err := bucket.DownloadToStream(fileId, fileBuffer); err != nil {
+		panic(err)
+	}
+	os.WriteFile(downloadPath, fileBuffer.Bytes(), 0660)
 }

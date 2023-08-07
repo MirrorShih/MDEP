@@ -17,7 +17,9 @@ type Report struct {
 	Precision      float64            `json:"precision" bson:"precision,omitempty"`
 	Recall         float64            `json:"recall" bson:"recall,omitempty"`
 	F1             float64            `json:"f1" bson:"f1,omitempty"`
-	TestTime       float64            `json:"testing_time" bson:"testing_time,omitempty"`
+	AvgTime        float64            `json:"avg_time" bson:"avg_time,omitempty"`
+	MinTime        float64            `json:"min_time" bson:"min_time,omitempty"`
+	MaxTime        float64            `json:"max_time" bson:"max_time,omitempty"`
 	TestSampleNum  float64            `json:"testing_sample_num" bson:"testing_sample_num,omitempty"`
 	TotalSampleNum float64            `json:"total_sample_num" bson:"total_sample_num,omitempty"`
 }

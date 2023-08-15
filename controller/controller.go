@@ -3,16 +3,75 @@ package controller
 import (
 	"MDEP/models"
 	"MDEP/services"
+	"context"
 	"encoding/csv"
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/joho/godotenv/autoload"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
 )
+
+type AuthController struct {
+	oauthConfig *oauth2.Config
+}
+
+func NewAuthController(clientID, clientSecret string) *AuthController {
+	return &AuthController{
+		oauthConfig: &oauth2.Config{
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+			Scopes:       []string{"user:email"},
+			Endpoint:     github.Endpoint,
+			RedirectURL:  os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
+		},
+	}
+}
+
+func (ac *AuthController) InitiateGitHubOAuth(c *gin.Context) {
+	authURL := ac.oauthConfig.AuthCodeURL("state")
+	c.Redirect(http.StatusFound, authURL)
+}
+
+func (ac *AuthController) HandleGitHubCallback(c *gin.Context) {
+	// get authorization code from redirect URL
+	code := c.Query("code")
+	// change authorization code into access token
+	token, err := ac.oauthConfig.Exchange(context.Background(), code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Use the token to make authenticated requests to GitHub API
+	client := ac.oauthConfig.Client(context.Background(), token)
+	resp, err := client.Get("https://api.github.com/user")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	var githubUser models.GitHubUser
+	// parse the JSON response into the 'GitHubUser' struct.
+	if err := json.NewDecoder(resp.Body).Decode(&githubUser); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": token.AccessToken,
+		"user_data":    githubUser,
+	})
+}
 
 func GetDetectorList(c *gin.Context) {
 	results := services.MongoClient.ListDetector("MDEP", "detector")

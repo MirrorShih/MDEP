@@ -36,6 +36,10 @@ func NewAuthController(clientID, clientSecret string) *AuthController {
 	}
 }
 
+func (ac *AuthController) LoginPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "", gin.H{})
+}
+
 func (ac *AuthController) InitiateGitHubOAuth(c *gin.Context) {
 	authURL := ac.oauthConfig.AuthCodeURL("state")
 	c.Redirect(http.StatusFound, authURL)

@@ -2,6 +2,7 @@ package router
 
 import (
 	"MDEP/controller"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,6 +36,13 @@ func register(method func(engine *gin.Engine, path string, handler func(c *gin.C
 }
 
 func init() {
+	clientID := os.Getenv("GITHUB_OAUTH_CLIENT_ID")
+	clientSecret := os.Getenv("GITHUB_OAUTH_CLIENT_SECRECT")
+	authController := controller.NewAuthController(clientID, clientSecret)
+	register(GET, "/", authController.LoginPage)
+	register(GET, "", authController.InitiateGitHubOAuth)
+	register(GET, "", authController.HandleGitHubCallback)
+
 	register(GET, "/api/detector", controller.GetDetectorList)
 	register(GET, "/api/detector/:id", controller.GetDetector)
 	register(POST, "/api/detector", controller.CreateDetector)

@@ -29,9 +29,12 @@ func NewAuthController(clientID, clientSecret string) *AuthController {
 		oauthConfig: &oauth2.Config{
 			ClientID:     clientID,
 			ClientSecret: clientSecret,
-			Scopes:       []string{"user:email"},
-			Endpoint:     github.Endpoint,
-			RedirectURL:  os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
+			Scopes: []string{
+				"user",
+				"repo",
+			},
+			Endpoint:    github.Endpoint,
+			RedirectURL: os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
 		},
 	}
 }

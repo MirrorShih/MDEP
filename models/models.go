@@ -20,6 +20,7 @@ type Report struct {
 	AvgTime        float64            `json:"avg_time" bson:"avg_time,omitempty"`
 	MinTime        float64            `json:"min_time" bson:"min_time,omitempty"`
 	MaxTime        float64            `json:"max_time" bson:"max_time,omitempty"`
+	TestingTime    float64            `json:"testing_time" bson:"testing_time,omitempty"`
 	TestSampleNum  float64            `json:"testing_sample_num" bson:"testing_sample_num,omitempty"`
 	TotalSampleNum float64            `json:"total_sample_num" bson:"total_sample_num,omitempty"`
 }

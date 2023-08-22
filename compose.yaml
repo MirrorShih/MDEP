@@ -9,7 +9,7 @@ services:
       -  mongo
     volumes:
       -  type: bind
-         source: /mnt/dataset/
+         source: ${DATASET_PATH}
          target: /mnt/dataset/
 
   mongo:
@@ -18,3 +18,9 @@ services:
       - '27017:27017'
     environment:
       MONGO_INITDB_DATABASE: 'MDEP'
+    volumes:
+      - 'mongo_data:/data/db'
+
+volumes:
+  mongo_data:
+    external: true

@@ -1,6 +1,8 @@
 FROM python:3.10 AS base
 RUN git clone https://github.com/radareorg/radare2
 RUN radare2/sys/install.sh
+RUN pip install scikit-learn
+RUN pip install pandas
 
 FROM golang:1.20.2-alpine3.17 AS builder
 WORKDIR ./src

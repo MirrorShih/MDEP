@@ -1,12 +1,12 @@
 package controller
 
 import (
+	"MDEP/config"
 	"MDEP/models"
 	"MDEP/services"
 	"context"
 	"encoding/csv"
 	"encoding/json"
-	"github.com/Jeffail/tunny"
 	"io"
 	"io/fs"
 	"log"
@@ -18,6 +18,8 @@ import (
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/Jeffail/tunny"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
@@ -50,23 +52,20 @@ type AuthController struct {
 	oauthConfig *oauth2.Config
 }
 
-func NewAuthController(clientID, clientSecret string) *AuthController {
+func NewAuthController() *AuthController {
+	config, _ := config.LoadConfig("./config")
 	return &AuthController{
 		oauthConfig: &oauth2.Config{
-			ClientID:     clientID,
-			ClientSecret: clientSecret,
+			ClientID:     config.GitHubClientID,
+			ClientSecret: config.GitHubClientSecret,
 			Scopes: []string{
 				"user",
 				"repo",
 			},
 			Endpoint:    github.Endpoint,
-			RedirectURL: os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
+			RedirectURL: config.GitHubOAuthRedirectUrl,
 		},
 	}
-}
-
-func (ac *AuthController) LoginPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "", gin.H{})
 }
 
 func (ac *AuthController) InitiateGitHubOAuth(c *gin.Context) {

@@ -37,9 +37,13 @@ func NewMongoDBClient(uri string) *MongoDBClient {
 }
 
 func ConnectMongo(uri string) (*mongo.Client, context.Context, error) {
+	credential := options.Credential{
+		Username: os.Getenv("MONGODB_USERNAME"),
+		Password: os.Getenv("MONGODB_PASSWORD"),
+	}
 	ctx := context.Background()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetAuth(credential))
 	return client, ctx, err
 }
 

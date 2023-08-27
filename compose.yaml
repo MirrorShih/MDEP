@@ -17,10 +17,8 @@ services:
     ports:
       - '27017:27017'
     environment:
-      MONGO_INITDB_DATABASE: 'MDEP'
+      - MONGO_INITDB_DATABASE='MDEP'
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     volumes:
-      - 'mongo_data:/data/db'
-
-volumes:
-  mongo_data:
-    external: true
+      - '${MONGODB_VOLUME}:/data/db'

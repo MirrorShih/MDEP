@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
-	"github.com/Jeffail/tunny"
 	"io"
 	"io/fs"
 	"log"
@@ -18,6 +17,8 @@ import (
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/Jeffail/tunny"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
@@ -63,10 +64,6 @@ func NewAuthController(clientID, clientSecret string) *AuthController {
 			RedirectURL: os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
 		},
 	}
-}
-
-func (ac *AuthController) LoginPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "", gin.H{})
 }
 
 func (ac *AuthController) InitiateGitHubOAuth(c *gin.Context) {

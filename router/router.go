@@ -39,9 +39,8 @@ func init() {
 	clientID := os.Getenv("GITHUB_OAUTH_CLIENT_ID")
 	clientSecret := os.Getenv("GITHUB_OAUTH_CLIENT_SECRECT")
 	authController := controller.NewAuthController(clientID, clientSecret)
-	register(GET, "/", authController.LoginPage)
-	register(GET, "", authController.InitiateGitHubOAuth)
-	register(GET, "", authController.HandleGitHubCallback)
+	register(GET, "/auth", authController.InitiateGitHubOAuth)
+	register(GET, "/auth/callback", authController.HandleGitHubCallback)
 
 	register(GET, "/api/detector", controller.GetDetectorList)
 	register(GET, "/api/detector/:id", controller.GetDetector)

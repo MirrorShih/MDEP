@@ -5,7 +5,6 @@ import (
 	"MDEP/services"
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"io"
 	"io/fs"
 	"log"
@@ -19,13 +18,12 @@ import (
 	"time"
 
 	"github.com/Jeffail/tunny"
+	"golang.org/x/oauth2"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
 )
 
 var pool *tunny.Pool
@@ -47,60 +45,27 @@ func init() {
 	pool.SetSize(1)
 }
 
-type AuthController struct {
-	oauthConfig *oauth2.Config
-}
-
-func NewAuthController(clientID, clientSecret string) *AuthController {
-	return &AuthController{
-		oauthConfig: &oauth2.Config{
-			ClientID:     clientID,
-			ClientSecret: clientSecret,
-			Scopes: []string{
-				"user",
-				"repo",
-			},
-			Endpoint:    github.Endpoint,
-			RedirectURL: os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
+func HandleCallback(c *gin.Context) {
+	ctx := context.Background()
+	ac := oauth2.Config{
+		ClientID:     os.Getenv("GITHUB_OAUTH_CLIENT_ID"),
+		ClientSecret: os.Getenv("GITHUB_OAUTH_CLIENT_SECRECT"),
+		RedirectURL:  os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
+		Scopes:       []string{"read:user", "repo"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://github.com/login/oauth/authorize",
+			TokenURL: "https://github.com/login/oauth/access_token",
 		},
 	}
-}
 
-func (ac *AuthController) InitiateGitHubOAuth(c *gin.Context) {
-	authURL := ac.oauthConfig.AuthCodeURL("state")
-	c.Redirect(http.StatusFound, authURL)
-}
-
-func (ac *AuthController) HandleGitHubCallback(c *gin.Context) {
-	// get authorization code from redirect URL
 	code := c.Query("code")
-	// change authorization code into access token
-	token, err := ac.oauthConfig.Exchange(context.Background(), code)
+	token, err := ac.Exchange(ctx, code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	// Use the token to make authenticated requests to GitHub API
-	client := ac.oauthConfig.Client(context.Background(), token)
-	resp, err := client.Get("https://api.github.com/user")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer resp.Body.Close()
-
-	var githubUser models.GitHubUser
-	// parse the JSON response into the 'GitHubUser' struct.
-	if err := json.NewDecoder(resp.Body).Decode(&githubUser); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"access_token": token.AccessToken,
-		"user_data":    githubUser,
-	})
+	c.String(http.StatusOK, "Access Token: %s", token.AccessToken)
 }
 
 func GetDetectorList(c *gin.Context) {

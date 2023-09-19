@@ -34,12 +34,13 @@ That's it! You should now be able to use the MDEP platform to evaluate your malw
 To use MDEP, you will need to follow these specifications:
 
 - The `main.py` file and `requirements.txt` file must be in the top level of the detector zip file.
-![](./assets/zip_structure.png)
+![zip](./assets/zip_structure.png)
 - The dataset folder should be structured as follows:
 
-![](./assets/dataset_structure.png)
-    - Each subfolder in the dataset folder should be named as function.
-    - Each subfolder should contain the corresponding binary files for the function.
+![dataset](./assets/dataset_structure.png)
+
+- Each subfolder in the dataset folder should be named as function.
+- Each subfolder should contain the corresponding binary files for the function.
 
 - dataset.csv should be like
 

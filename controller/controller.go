@@ -186,8 +186,7 @@ func RunDetector(taskPath string, functions, reportId []string) {
 		}
 		r := csv.NewReader(content)
 		title := true
-		var accuracy float64
-		var testSampleNum float64
+		var accuracy, testSampleNum, precision, recall, f1_score float64
 		for {
 			record, err := r.Read()
 			if err == io.EOF {
@@ -208,8 +207,20 @@ func RunDetector(taskPath string, functions, reportId []string) {
 			if err != nil {
 				log.Println(err)
 			}
+			precision, err = strconv.ParseFloat(record[2], 64)
+			if err != nil {
+				log.Println(err)
+			}
+			recall, err = strconv.ParseFloat(record[3], 64)
+			if err != nil {
+				log.Println(err)
+			}
+			f1_score, err = strconv.ParseFloat(record[4], 64)
+			if err != nil {
+				log.Println(err)
+			}
 		}
-		services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, accuracy, 0, 0, 0, 0, 0, testingTime / totalNum, minTime, maxTime, testingTime, testSampleNum, totalNum})
+		services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, accuracy, 0, 0, precision, recall, f1_score, testingTime / totalNum, minTime, maxTime, testingTime, testSampleNum, totalNum})
 	}
 }
 

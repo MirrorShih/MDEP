@@ -28,3 +28,23 @@ DATASET_PATH=/home/user/dataset
 6. Once the containers are running, you can access the platform by navigating to `http://localhost:8000/api` in your web browser.
 
 That's it! You should now be able to use the MDEP platform to evaluate your malware detection tools. Please note that the platform is designed to be run on a server, so you may need to modify the Docker commands if you are running it in a different environment.
+
+## Specification
+
+To use MDEP, you will need to follow these specifications:
+
+- The `main.py` file and `requirements.txt` file must be in the top level of the detector zip file.
+![](./assets/zip_structure.png)
+- The dataset folder should be structured as follows:
+
+![](./assets/dataset_structure.png)
+    - Each subfolder in the dataset folder should be named as function.
+    - Each subfolder should contain the corresponding binary files for the function.
+
+- dataset.csv should be like
+
+```CSV
+filename,label
+file1,label1
+file2,label2
+```

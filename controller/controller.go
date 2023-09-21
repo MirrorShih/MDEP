@@ -5,6 +5,7 @@ import (
 	"MDEP/services"
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"io"
 	"io/fs"
 	"log"
@@ -61,11 +62,31 @@ func HandleCallback(c *gin.Context) {
 	code := c.Query("code")
 	token, err := ac.Exchange(ctx, code)
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.String(http.StatusOK, "Access Token: %s", token.AccessToken)
+	// Use the token to make authenticated requests to GitHub API
+	client := ac.Client(ctx, token)
+	resp, err := client.Get("https://api.github.com/user")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	defer resp.Body.Close()
+	var githubUser models.GitHubUser
+	// parse the JSON response into the 'GitHubUser' struct.
+	if err := json.NewDecoder(resp.Body).Decode(&githubUser); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Set("github_user", githubUser)
+
+	c.JSON(http.StatusOK, gin.H{
+		"user_data: ": githubUser,
+	})
 }
 
 func GetDetectorList(c *gin.Context) {

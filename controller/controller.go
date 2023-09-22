@@ -62,15 +62,16 @@ func HandleCallback(c *gin.Context) {
 	code := c.Query("code")
 	token, err := ac.Exchange(ctx, code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"token exchange failed": err.Error()})
 		return
 	}
+	c.Set("oauth_token", token)
 
 	// Use the token to make authenticated requests to GitHub API
 	client := ac.Client(ctx, token)
 	resp, err := client.Get("https://api.github.com/user")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"GitHub API request failed": err.Error()})
 		return
 	}
 
@@ -78,15 +79,13 @@ func HandleCallback(c *gin.Context) {
 	var githubUser models.GitHubUser
 	// parse the JSON response into the 'GitHubUser' struct.
 	if err := json.NewDecoder(resp.Body).Decode(&githubUser); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"parsing error": err.Error()})
 		return
 	}
 
 	c.Set("github_user", githubUser)
 
-	c.JSON(http.StatusOK, gin.H{
-		"user_data: ": githubUser,
-	})
+	c.Next()
 }
 
 func GetDetectorList(c *gin.Context) {

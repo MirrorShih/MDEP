@@ -320,3 +320,14 @@ func GetDatasetList(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response)
 }
+
+func GetLeaderboard(c *gin.Context) {
+	target := c.Param("dataset")
+	filter := bson.D{bson.E{Key: "function_type", Value: target}}
+	results := services.MongoClient.ListLeaderboard("MDEP", "report", filter)
+	var response []models.Report
+	for _, result := range results {
+		response = append(response, result)
+	}
+	c.JSON(http.StatusOK, response)
+}

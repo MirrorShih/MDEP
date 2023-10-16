@@ -44,6 +44,7 @@ func init() {
 	register(PUT, "/detector/:id", controller.UpdateDetector)
 	register(DELETE, "/detector/:id", controller.DeleteDetector)
 	register(GET, "/dataset", controller.GetDatasetList)
+	register(GET, "/leaderboard/:dataset", controller.GetLeaderboard)
 }
 
 func NewRouter() *gin.Engine {

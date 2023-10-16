@@ -222,3 +222,20 @@ func (mongoClient *MongoDBClient) DownloadFile(databaseName string, fileId primi
 	}
 	os.WriteFile(downloadPath, fileBuffer.Bytes(), 0660)
 }
+
+func (mongoClient *MongoDBClient) ListLeaderboard(databaseName string, collectionName string, filter bson.D) []models.Report {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	opts := options.Find().SetSort(bson.D{{"accuracy", -1}})
+	cursor, err := collection.Find(context.TODO(), filter, opts)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	var results []models.Report
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		panic(err)
+	}
+	if err != nil {
+		log.Println(err.Error())
+	}
+	return results
+}

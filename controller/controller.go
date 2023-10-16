@@ -33,7 +33,7 @@ type DetectorTask struct {
 	id        primitive.ObjectID
 	taskPath  string
 	functions []string
-	reportId  []string
+	reportId  []models.Task
 }
 
 func init() {
@@ -150,7 +150,7 @@ func InitDetector(taskPath string) {
 	}
 }
 
-func RunDetector(taskPath string, functions, reportId []string) {
+func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 	datasetPath := "/mnt/dataset/"
 	for i, function := range functions {
 		startTime := time.Now()
@@ -196,7 +196,7 @@ func RunDetector(taskPath string, functions, reportId []string) {
 		if err != nil {
 			log.Printf("cmd.Run() failed with %s\n", err)
 		}
-		reportID, err := primitive.ObjectIDFromHex(reportId[i])
+		reportID, err := primitive.ObjectIDFromHex(reportId[i].Id)
 		if err != nil {
 			log.Printf("cannot covert report id")
 		}
@@ -244,7 +244,7 @@ func RunDetector(taskPath string, functions, reportId []string) {
 	}
 }
 
-func RunTask(detectorId primitive.ObjectID, taskPath string, functions, reportId []string) {
+func RunTask(detectorId primitive.ObjectID, taskPath string, functions []string, reportId []models.Task) {
 	DownloadDetector(detectorId, taskPath)
 	InitDetector(taskPath)
 	RunDetector(taskPath, functions, reportId)
@@ -259,12 +259,12 @@ func CreateTask(c *gin.Context) {
 	log.Printf("%v", &json)
 	taskPath := "/home/MDEP/task/"
 	os.Mkdir(taskPath, os.ModePerm)
-	var reportID []string
+	var reportID []models.Task
 	for _ = range json.FunctionType {
-		reportID = append(reportID, primitive.NewObjectID().Hex())
+		reportID = append(reportID, models.Task{Id: primitive.NewObjectID().Hex()})
 	}
 	go pool.Process(DetectorTask{id, taskPath, json.FunctionType, reportID})
-	c.JSON(http.StatusOK, gin.H{"report_id": reportID})
+	c.JSON(http.StatusOK, reportID)
 }
 
 func GetReportList(c *gin.Context) {

@@ -60,7 +60,7 @@ type GitHubUser struct {
 }
 
 type Task struct {
-	Id primitive.ObjectID `json:"report_id" bson:"_id,omitempty"`
+	Id string `json:"report_id" bson:"_id,omitempty"`
 }
 
 type Dataset struct {

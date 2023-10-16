@@ -306,3 +306,17 @@ func DeleteDetector(c *gin.Context) {
 		log.Println("delete failed")
 	}
 }
+
+func GetDatasetList(c *gin.Context) {
+	files, err := os.ReadDir("/mnt/dataset")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var response []models.Dataset
+	for _, result := range files {
+		if result.IsDir() {
+			response = append(response, models.Dataset{Name: result.Name()})
+		}
+	}
+	c.JSON(http.StatusOK, response)
+}

@@ -58,3 +58,11 @@ type GitHubUser struct {
 	CreatedAt         string `json:"created_at"`
 	UpdatedAt         string `json:"updated_at"`
 }
+
+type Task struct {
+	Id primitive.ObjectID `json:"report_id" bson:"_id,omitempty"`
+}
+
+type Dataset struct {
+	Name string `json:"dataset_name" bson:"dataset_name,omitempty"`
+}

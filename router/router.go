@@ -3,7 +3,6 @@ package router
 import (
 	"MDEP/controller"
 	"MDEP/middleware"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,6 +43,7 @@ func init() {
 	register(GET, "/report/:id", controller.GetReport)
 	register(PUT, "/detector/:id", controller.UpdateDetector)
 	register(DELETE, "/detector/:id", controller.DeleteDetector)
+	register(GET, "/dataset", controller.GetDatasetList)
 }
 
 func NewRouter() *gin.Engine {

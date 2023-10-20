@@ -5,7 +5,6 @@ import (
 	"MDEP/services"
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"io"
 	"io/fs"
 	"log"
@@ -19,7 +18,9 @@ import (
 	"time"
 
 	"github.com/Jeffail/tunny"
+	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
@@ -46,46 +47,32 @@ func init() {
 	pool.SetSize(1)
 }
 
-func HandleCallback(c *gin.Context) {
-	ctx := context.Background()
-	ac := oauth2.Config{
+var (
+	AuthController = oauth2.Config{
 		ClientID:     os.Getenv("GITHUB_OAUTH_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_OAUTH_CLIENT_SECRECT"),
 		RedirectURL:  os.Getenv("GITHUB_OAUTH_REDIRECT_URL"),
 		Scopes:       []string{"read:user", "repo"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://github.com/login/oauth/authorize",
-			TokenURL: "https://github.com/login/oauth/access_token",
-		},
+		Endpoint:     github.Endpoint,
 	}
+	Store = sessions.NewCookieStore([]byte(os.Getenv("xdtxcgfyugb")))
+)
+
+func HandleCallback(c *gin.Context) {
+	ctx := context.Background()
 
 	code := c.Query("code")
-	token, err := ac.Exchange(ctx, code)
+	token, err := AuthController.Exchange(ctx, code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"token exchange failed": err.Error()})
-		return
-	}
-	c.Set("oauth_token", token)
-
-	// Use the token to make authenticated requests to GitHub API
-	client := ac.Client(ctx, token)
-	resp, err := client.Get("https://api.github.com/user")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"GitHub API request failed": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"token exchange failed": err.Error()})
 		return
 	}
 
-	defer resp.Body.Close()
-	var githubUser models.GitHubUser
-	// parse the JSON response into the 'GitHubUser' struct.
-	if err := json.NewDecoder(resp.Body).Decode(&githubUser); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"parsing error": err.Error()})
-		return
-	}
+	session, _ := Store.Get(c.Request, "session1")
+	session.Values["access_token"] = token.AccessToken
+	session.Save(c.Request, c.Writer)
 
-	c.Set("github_user", githubUser)
-
-	c.Next()
+	c.Redirect(http.StatusFound, "http://140.118.155.18:8001/dash")
 }
 
 func GetDetectorList(c *gin.Context) {

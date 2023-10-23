@@ -4,6 +4,7 @@ import (
 	"MDEP/controller"
 	"MDEP/middleware"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -50,9 +51,9 @@ func init() {
 
 func NewRouter() *gin.Engine {
 	router := gin.Default()
+	router.Use(cors.Default())
 	routerGroup := router.Group("/api")
 	routerGroup.Use(middleware.GitHubAPIMiddleware())
-
 	for _, route := range routes {
 		route.Method(routerGroup, route.Path, route.Handler)
 	}

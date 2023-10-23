@@ -51,7 +51,10 @@ func init() {
 
 func NewRouter() *gin.Engine {
 	router := gin.Default()
-	router.Use(cors.Default())
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowWildcard = true
+	router.Use(cors.New(config))
 	routerGroup := router.Group("/api")
 	routerGroup.Use(middleware.GitHubAPIMiddleware())
 	for _, route := range routes {

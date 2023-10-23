@@ -52,8 +52,7 @@ func init() {
 func NewRouter() *gin.Engine {
 	router := gin.Default()
 	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	config.AllowWildcard = true
+	config.AllowOrigins = []string{"http://140.118.155.18:8001"}
 	router.Use(cors.New(config))
 	routerGroup := router.Group("/api")
 	routerGroup.Use(middleware.GitHubAPIMiddleware())

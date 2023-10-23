@@ -55,7 +55,7 @@ var (
 		Scopes:       []string{"read:user", "repo"},
 		Endpoint:     github.Endpoint,
 	}
-	Store = sessions.NewCookieStore([]byte(os.Getenv("xdtxcgfyugb")))
+	Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))
 )
 
 func HandleCallback(c *gin.Context) {

@@ -3,9 +3,11 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Detector struct {
-	Id     primitive.ObjectID `json:"detector_id" bson:"_id,omitempty"`
-	Name   string             `json:"detector_name" bson:"name,omitempty"`
-	FileId primitive.ObjectID `json:"file_id" bson:"file_id,omitempty"`
+	Id       primitive.ObjectID `json:"detector_id" bson:"_id,omitempty"`
+	Name     string             `json:"detector_name" bson:"name,omitempty"`
+	FileId   primitive.ObjectID `json:"file_id" bson:"file_id,omitempty"`
+	UserID   string             `json:"user_id" bson:"user_id,omitempty"`
+	UserName string             `json:"user_name" bson:"user_name,omitempty"`
 }
 
 type Report struct {
@@ -23,11 +25,13 @@ type Report struct {
 	TestingTime    float64            `json:"testing_time" bson:"testing_time,omitempty"`
 	TestSampleNum  float64            `json:"testing_sample_num" bson:"testing_sample_num,omitempty"`
 	TotalSampleNum float64            `json:"total_sample_num" bson:"total_sample_num,omitempty"`
+	UserID         string             `json:"user_id" bson:"user_id,omitempty"`
+	UserName       string             `json:"user_name" bson:"user_name,omitempty"`
 }
 
 type GitHubUser struct {
 	Login             string `json:"login"`
-	ID                int    `json:"id"`
+	ID                string `json:"id"`
 	NodeID            string `json:"node_id"`
 	AvatarURL         string `json:"avatar_url"`
 	GravatarID        string `json:"gravatar_id"`
@@ -60,7 +64,8 @@ type GitHubUser struct {
 }
 
 type Task struct {
-	Id string `json:"report_id" bson:"_id,omitempty"`
+	Id     string `json:"report_id" bson:"_id,omitempty"`
+	UserID string `json:"user_id" bson:"user_id,omitempty"`
 }
 
 type Dataset struct {

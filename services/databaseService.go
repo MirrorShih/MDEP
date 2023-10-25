@@ -4,6 +4,10 @@ import (
 	"MDEP/models"
 	"bytes"
 	"context"
+	"io/ioutil"
+	"log"
+	"os"
+
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,9 +15,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"io/ioutil"
-	"log"
-	"os"
 )
 
 type MongoDBClient struct {
@@ -66,10 +67,10 @@ func PingMongo(client *mongo.Client, ctx context.Context) error {
 	return nil
 }
 
-func (mongoClient *MongoDBClient) InsertDetector(databaseName, file, filename string, collectionName string) bool {
+func (mongoClient *MongoDBClient) InsertDetector(databaseName, file, filename string, collectionName string, userID int, userName string) bool {
 	detectorID := mongoClient.UploadFile(databaseName, file, filename)
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	_, err := collection.InsertOne(MongoClient.ctx, models.Detector{primitive.NewObjectID(), filename, detectorID})
+	_, err := collection.InsertOne(MongoClient.ctx, models.Detector{primitive.NewObjectID(), filename, detectorID, userID, userName})
 	if err != nil {
 		return false
 	}
@@ -77,9 +78,10 @@ func (mongoClient *MongoDBClient) InsertDetector(databaseName, file, filename st
 	return true
 }
 
-func (mongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string) []models.Detector {
+func (mongoClient *MongoDBClient) ListDetector(databaseName string, collectionName string, userID int) []models.Detector {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	cursor, err := collection.Find(context.TODO(), bson.D{{}})
+	filter := bson.D{{"user_id", userID}}
+	cursor, err := collection.Find(context.TODO(), filter)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -143,9 +145,10 @@ func (mongoClient *MongoDBClient) InsertReport(databaseName string, collectionNa
 	return true
 }
 
-func (mongoClient *MongoDBClient) ListReport(databaseName string, collectionName string) []models.Report {
+func (mongoClient *MongoDBClient) ListReport(databaseName string, collectionName string, userID int) []models.Report {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	cursor, err := collection.Find(context.TODO(), bson.D{})
+	filter := bson.D{bson.E{Key: "user_id", Value: userID}}
+	cursor, err := collection.Find(context.TODO(), filter)
 	if err != nil {
 		log.Println(err.Error())
 	}

@@ -75,8 +75,16 @@ func HandleCallback(c *gin.Context) {
 	c.Redirect(http.StatusFound, "http://140.118.155.18:8001/dash")
 }
 
+func UserFilter(c *gin.Context) (int, string) {
+	githubUser, _ := c.Get("github_user")
+	userID := githubUser.(models.GitHubUser).ID
+	userName := githubUser.(models.GitHubUser).Name
+	return userID, userName
+}
+
 func GetDetectorList(c *gin.Context) {
-	results := services.MongoClient.ListDetector("MDEP", "detector")
+	userID, _ := UserFilter(c)
+	results := services.MongoClient.ListDetector("MDEP", "detector", userID)
 	var response []models.Detector
 	for _, result := range results {
 		response = append(response, result)
@@ -85,9 +93,11 @@ func GetDetectorList(c *gin.Context) {
 }
 
 func GetDetector(c *gin.Context) {
+	userID, _ := UserFilter(c)
 	target := c.Param("id")
 	id, _ := primitive.ObjectIDFromHex(target)
 	filter := bson.D{bson.E{Key: "_id", Value: id}}
+	filter = append(filter, bson.E{Key: "user_id", Value: userID})
 	results := services.MongoClient.GetCertainDetector("MDEP", "detector", filter)
 	c.JSON(http.StatusOK, results)
 }
@@ -99,7 +109,8 @@ func CreateDetector(c *gin.Context) {
 	uploadFilePath := uploadFolder + uploadFile.Filename
 	defer os.Remove(uploadFilePath)
 	c.SaveUploadedFile(uploadFile, uploadFilePath)
-	services.MongoClient.InsertDetector("MDEP", uploadFilePath, uploadFile.Filename, "detector")
+	userID, userName := UserFilter(c)
+	services.MongoClient.InsertDetector("MDEP", uploadFilePath, uploadFile.Filename, "detector", userID, userName)
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
@@ -187,6 +198,9 @@ func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 		if err != nil {
 			log.Printf("cannot covert report id")
 		}
+		userID := (reportId[i].UserID)
+		userName := (reportId[i].UserName)
+
 		content, err := os.OpenFile(taskPath+"metrics.csv", os.O_RDONLY, os.ModePerm)
 		if err != nil {
 			log.Println("Cannot find csv file:", taskPath+"metrics.csv", err)
@@ -227,7 +241,7 @@ func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 				log.Println(err)
 			}
 		}
-		services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, accuracy, 0, 0, precision, recall, f1_score, testingTime / totalNum, minTime, maxTime, testingTime, testSampleNum, totalNum})
+		services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, accuracy, 0, 0, precision, recall, f1_score, testingTime / totalNum, minTime, maxTime, testingTime, testSampleNum, totalNum, userID, userName})
 	}
 }
 
@@ -255,7 +269,8 @@ func CreateTask(c *gin.Context) {
 }
 
 func GetReportList(c *gin.Context) {
-	results := services.MongoClient.ListReport("MDEP", "report")
+	userID, _ := UserFilter(c)
+	results := services.MongoClient.ListReport("MDEP", "report", userID)
 	var response []models.Report
 	for _, result := range results {
 		response = append(response, result)
@@ -264,9 +279,11 @@ func GetReportList(c *gin.Context) {
 }
 
 func GetReport(c *gin.Context) {
+	userID, _ := UserFilter(c)
 	target := c.Param("id")
 	id, _ := primitive.ObjectIDFromHex(target)
 	filter := bson.D{bson.E{Key: "_id", Value: id}}
+	filter = append(filter, bson.E{Key: "user_id", Value: userID})
 	result := services.MongoClient.GetCertainReport("MDEP", "report", filter)
 	c.JSON(http.StatusOK, result)
 }

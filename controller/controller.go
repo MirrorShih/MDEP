@@ -198,8 +198,8 @@ func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 		if err != nil {
 			log.Printf("cannot covert report id")
 		}
-		userID := (reportId[i].UserID)
-		userName := (reportId[i].UserName)
+		userID := reportId[i].UserID
+		userName := reportId[i].UserName
 
 		content, err := os.OpenFile(taskPath+"metrics.csv", os.O_RDONLY, os.ModePerm)
 		if err != nil {
@@ -261,8 +261,9 @@ func CreateTask(c *gin.Context) {
 	taskPath := "/home/MDEP/task/"
 	os.Mkdir(taskPath, os.ModePerm)
 	var reportID []models.Task
+	userID, userName := UserFilter(c)
 	for _ = range json.FunctionType {
-		reportID = append(reportID, models.Task{Id: primitive.NewObjectID().Hex()})
+		reportID = append(reportID, models.Task{Id: primitive.NewObjectID().Hex(), UserID: userID, UserName: userName})
 	}
 	go pool.Process(DetectorTask{id, taskPath, json.FunctionType, reportID})
 	c.JSON(http.StatusOK, reportID)

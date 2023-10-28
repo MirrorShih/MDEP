@@ -204,44 +204,46 @@ func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 		content, err := os.OpenFile(taskPath+"metrics.csv", os.O_RDONLY, os.ModePerm)
 		if err != nil {
 			log.Println("Cannot find csv file:", taskPath+"metrics.csv", err)
+			services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, -1, 0, 0, -1, -1, -1, testingTime / totalNum, minTime, maxTime, testingTime, -1, totalNum, userID, userName})
+		} else {
+			r := csv.NewReader(content)
+			title := true
+			var accuracy, testSampleNum, precision, recall, f1_score float64
+			for {
+				record, err := r.Read()
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					log.Println(err)
+				}
+				if title {
+					title = false
+					continue
+				}
+				testSampleNum, err = strconv.ParseFloat(record[0], 64)
+				if err != nil {
+					log.Println(err)
+				}
+				accuracy, err = strconv.ParseFloat(record[1], 64)
+				if err != nil {
+					log.Println(err)
+				}
+				precision, err = strconv.ParseFloat(record[2], 64)
+				if err != nil {
+					log.Println(err)
+				}
+				recall, err = strconv.ParseFloat(record[3], 64)
+				if err != nil {
+					log.Println(err)
+				}
+				f1_score, err = strconv.ParseFloat(record[4], 64)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+			services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, accuracy, 0, 0, precision, recall, f1_score, testingTime / totalNum, minTime, maxTime, testingTime, testSampleNum, totalNum, userID, userName})
 		}
-		r := csv.NewReader(content)
-		title := true
-		var accuracy, testSampleNum, precision, recall, f1_score float64
-		for {
-			record, err := r.Read()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				log.Println(err)
-			}
-			if title {
-				title = false
-				continue
-			}
-			testSampleNum, err = strconv.ParseFloat(record[0], 64)
-			if err != nil {
-				log.Println(err)
-			}
-			accuracy, err = strconv.ParseFloat(record[1], 64)
-			if err != nil {
-				log.Println(err)
-			}
-			precision, err = strconv.ParseFloat(record[2], 64)
-			if err != nil {
-				log.Println(err)
-			}
-			recall, err = strconv.ParseFloat(record[3], 64)
-			if err != nil {
-				log.Println(err)
-			}
-			f1_score, err = strconv.ParseFloat(record[4], 64)
-			if err != nil {
-				log.Println(err)
-			}
-		}
-		services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, accuracy, 0, 0, precision, recall, f1_score, testingTime / totalNum, minTime, maxTime, testingTime, testSampleNum, totalNum, userID, userName})
 	}
 }
 

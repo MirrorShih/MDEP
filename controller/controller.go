@@ -157,6 +157,7 @@ func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 		totalNum := 0.0
 		err := filepath.Walk(datasetPath+function, func(path string, info fs.FileInfo, err error) error {
 			if err != nil {
+				totalNum += 1
 				return err
 			}
 			if info.IsDir() {

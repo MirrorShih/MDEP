@@ -31,7 +31,7 @@ import (
 var pool *tunny.Pool
 
 type DetectorTask struct {
-	id        primitive.ObjectID
+	detector  *models.Detector
 	taskPath  string
 	functions []string
 	reportId  []models.Task
@@ -41,7 +41,7 @@ func init() {
 	numCPUs := runtime.NumCPU()
 	pool = tunny.NewFunc(numCPUs, func(task interface{}) interface{} {
 		detectorTask := task.(DetectorTask)
-		RunTask(detectorTask.id, detectorTask.taskPath, detectorTask.functions, detectorTask.reportId)
+		RunTask(detectorTask.detector, detectorTask.taskPath, detectorTask.functions, detectorTask.reportId)
 		return true
 	})
 	pool.SetSize(1)
@@ -148,7 +148,7 @@ func InitDetector(taskPath string) {
 	}
 }
 
-func RunDetector(taskPath string, functions []string, reportId []models.Task) {
+func RunDetector(taskPath string, functions []string, reportId []models.Task, detector *models.Detector) {
 	datasetPath := "/mnt/dataset/"
 	for i, function := range functions {
 		startTime := time.Now()
@@ -205,7 +205,7 @@ func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 		content, err := os.OpenFile(taskPath+"metrics.csv", os.O_RDONLY, os.ModePerm)
 		if err != nil {
 			log.Println("Cannot find csv file:", taskPath+"metrics.csv", err)
-			services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, -1, -1, -1, -1, -1, -1, testingTime / totalNum, minTime, maxTime, testingTime, -1, totalNum, userID, userName})
+			services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, -1, -1, -1, -1, -1, -1, testingTime / totalNum, minTime, maxTime, testingTime, -1, totalNum, userID, userName, primitive.NewDateTimeFromTime(time.Now()), detector.Name})
 		} else {
 			r := csv.NewReader(content)
 			title := true
@@ -243,15 +243,15 @@ func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 					log.Println(err)
 				}
 			}
-			services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, accuracy, 0, 0, precision, recall, f1_score, testingTime / totalNum, minTime, maxTime, testingTime, testSampleNum, totalNum, userID, userName})
+			services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, accuracy, 0, 0, precision, recall, f1_score, testingTime / totalNum, minTime, maxTime, testingTime, testSampleNum, totalNum, userID, userName, primitive.NewDateTimeFromTime(time.Now()), detector.Name})
 		}
 	}
 }
 
-func RunTask(detectorId primitive.ObjectID, taskPath string, functions []string, reportId []models.Task) {
-	DownloadDetector(detectorId, taskPath)
+func RunTask(detector *models.Detector, taskPath string, functions []string, reportId []models.Task) {
+	DownloadDetector(detector.Id, taskPath)
 	InitDetector(taskPath)
-	RunDetector(taskPath, functions, reportId)
+	RunDetector(taskPath, functions, reportId, detector)
 	os.RemoveAll(taskPath)
 }
 
@@ -259,6 +259,8 @@ func CreateTask(c *gin.Context) {
 	var json TaskRequest
 	c.BindJSON(&json)
 	id, _ := primitive.ObjectIDFromHex(json.DetectorId)
+	filter := bson.D{bson.E{Key: "_id", Value: id}}
+	detector := services.MongoClient.GetCertainDetector("MDEP", "detector", filter)
 	log.Println(json.DetectorId)
 	log.Printf("%v", &json)
 	taskPath := "/home/MDEP/task/"
@@ -268,7 +270,7 @@ func CreateTask(c *gin.Context) {
 	for _ = range json.FunctionType {
 		reportID = append(reportID, models.Task{Id: primitive.NewObjectID().Hex(), UserID: userID, UserName: userName})
 	}
-	go pool.Process(DetectorTask{id, taskPath, json.FunctionType, reportID})
+	go pool.Process(DetectorTask{detector, taskPath, json.FunctionType, reportID})
 	c.JSON(http.StatusOK, reportID)
 }
 

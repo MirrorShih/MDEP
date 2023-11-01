@@ -11,22 +11,24 @@ type Detector struct {
 }
 
 type Report struct {
-	Id             primitive.ObjectID `json:"report_id" bson:"_id,omitempty"`
-	FuncType       string             `json:"function_type" bson:"function_type,omitempty"`
-	Accuracy       float64            `json:"accuracy" bson:"accuracy,omitempty"`
-	FP             float64            `json:"fp" bson:"fp,omitempty"`
-	FN             float64            `json:"fn" bson:"fn,omitempty"`
-	Precision      float64            `json:"precision" bson:"precision,omitempty"`
-	Recall         float64            `json:"recall" bson:"recall,omitempty"`
-	F1             float64            `json:"f1" bson:"f1,omitempty"`
-	AvgTime        float64            `json:"avg_time" bson:"avg_time,omitempty"`
-	MinTime        float64            `json:"min_time" bson:"min_time,omitempty"`
-	MaxTime        float64            `json:"max_time" bson:"max_time,omitempty"`
-	TestingTime    float64            `json:"testing_time" bson:"testing_time,omitempty"`
-	TestSampleNum  float64            `json:"testing_sample_num" bson:"testing_sample_num,omitempty"`
-	TotalSampleNum float64            `json:"total_sample_num" bson:"total_sample_num,omitempty"`
-	UserID         int                `json:"user_id" bson:"user_id,omitempty"`
-	UserName       string             `json:"user_name" bson:"user_name,omitempty"`
+	Id              primitive.ObjectID `json:"report_id" bson:"_id,omitempty"`
+	FuncType        string             `json:"function_type" bson:"function_type,omitempty"`
+	Accuracy        float64            `json:"accuracy" bson:"accuracy,omitempty"`
+	FP              float64            `json:"fp" bson:"fp,omitempty"`
+	FN              float64            `json:"fn" bson:"fn,omitempty"`
+	Precision       float64            `json:"precision" bson:"precision,omitempty"`
+	Recall          float64            `json:"recall" bson:"recall,omitempty"`
+	F1              float64            `json:"f1" bson:"f1,omitempty"`
+	AvgTime         float64            `json:"avg_time" bson:"avg_time,omitempty"`
+	MinTime         float64            `json:"min_time" bson:"min_time,omitempty"`
+	MaxTime         float64            `json:"max_time" bson:"max_time,omitempty"`
+	TestingTime     float64            `json:"testing_time" bson:"testing_time,omitempty"`
+	TestSampleNum   float64            `json:"testing_sample_num" bson:"testing_sample_num,omitempty"`
+	TotalSampleNum  float64            `json:"total_sample_num" bson:"total_sample_num,omitempty"`
+	UserID          int                `json:"user_id" bson:"user_id,omitempty"`
+	UserName        string             `json:"user_name" bson:"user_name,omitempty"`
+	TestingDatetime primitive.DateTime `json:"testing_datetime" bson:"testing_datetime,omitempty"`
+	DetectorName    string             `json:"detector_name" bson:"detector_name,omitempty"`
 }
 
 type GitHubUser struct {

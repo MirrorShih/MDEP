@@ -205,7 +205,7 @@ func RunDetector(taskPath string, functions []string, reportId []models.Task) {
 		content, err := os.OpenFile(taskPath+"metrics.csv", os.O_RDONLY, os.ModePerm)
 		if err != nil {
 			log.Println("Cannot find csv file:", taskPath+"metrics.csv", err)
-			services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, -1, 0, 0, -1, -1, -1, testingTime / totalNum, minTime, maxTime, testingTime, -1, totalNum, userID, userName})
+			services.MongoClient.InsertReport("MDEP", "report", models.Report{reportID, function, -1, -1, -1, -1, -1, -1, testingTime / totalNum, minTime, maxTime, testingTime, -1, totalNum, userID, userName})
 		} else {
 			r := csv.NewReader(content)
 			title := true
@@ -331,7 +331,14 @@ func GetDatasetList(c *gin.Context) {
 
 func GetLeaderboard(c *gin.Context) {
 	target := c.Param("dataset")
-	filter := bson.D{bson.E{Key: "function_type", Value: target}}
+	filter := bson.D{
+		{"$and",
+			bson.A{
+				bson.D{{"function_type", bson.D{{"$eq", target}}}},
+				bson.D{{"accuracy", bson.D{{"$ne", -1}}}},
+			},
+		},
+	}
 	results := services.MongoClient.ListLeaderboard("MDEP", "report", filter)
 	var response []models.Report
 	for _, result := range results {

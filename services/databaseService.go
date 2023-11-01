@@ -147,7 +147,14 @@ func (mongoClient *MongoDBClient) InsertReport(databaseName string, collectionNa
 
 func (mongoClient *MongoDBClient) ListReport(databaseName string, collectionName string, userID int) []models.Report {
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	filter := bson.D{bson.E{Key: "user_id", Value: userID}}
+	filter := bson.D{
+		{"$and",
+			bson.A{
+				bson.D{{"user_id", bson.D{{"$eq", userID}}}},
+				bson.D{{"accuracy", bson.D{{"$ne", -1}}}},
+			},
+		},
+	}
 	cursor, err := collection.Find(context.TODO(), filter)
 	if err != nil {
 		log.Println(err.Error())

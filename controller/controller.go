@@ -339,3 +339,18 @@ func GetLeaderboard(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response)
 }
+
+func DeleteReport(c *gin.Context) {
+	userID, _ := UserFilter(c)
+	target := c.Param("id")
+	id, _ := primitive.ObjectIDFromHex(target)
+	filter := bson.D{bson.E{Key: "_id", Value: id}}
+	filter = append(filter, bson.E{Key: "user_id", Value: userID})
+	result := services.MongoClient.DeleteDetector("MDEP", "report", filter)
+	if result == true {
+		c.JSON(http.StatusOK, gin.H{})
+	} else {
+		log.Println("delete failed")
+		c.JSON(http.StatusUnauthorized, gin.H{})
+	}
+}

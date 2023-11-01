@@ -125,7 +125,7 @@ func (mongoClient *MongoDBClient) DeleteDetector(databaseName string, collection
 	if err != nil {
 		return false
 	}
-	log.Println("report inserted")
+	log.Println("detector deleted")
 	return true
 }
 
@@ -171,6 +171,16 @@ func (mongoClient *MongoDBClient) GetCertainReport(databaseName string, collecti
 		log.Println(err.Error())
 	}
 	return result
+}
+
+func (mongoClient *MongoDBClient) DeleteReport(databaseName string, collectionName string, filter bson.D) bool {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	_, err := collection.DeleteOne(MongoClient.ctx, filter)
+	if err != nil {
+		return false
+	}
+	log.Println("report deleted")
+	return true
 }
 
 func (mongoClient *MongoDBClient) UploadFile(databaseName, file, filename string) primitive.ObjectID {

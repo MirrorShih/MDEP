@@ -120,7 +120,7 @@ type TaskRequest struct {
 }
 
 type DescriptionRequest struct {
-	content string `json:"content"`
+	Content string `json:"content"`
 }
 
 func DownloadDetector(detectorId primitive.ObjectID, taskPath string) {
@@ -375,10 +375,10 @@ func UpdateDescription(c *gin.Context) {
 	target := c.Param("id")
 	filter := bson.D{bson.E{Key: "_id", Value: target}}
 	filter = append(filter, bson.E{Key: "user_id", Value: userID})
-	update := bson.D{{"$set", bson.D{{"description", json.content}}}}
+	update := bson.D{{"$set", bson.D{{"description", json.Content}}}}
 	result := services.MongoClient.UpdateDescription("MDEP", "detector", filter, update)
 	println(target)
-	println(json.content)
+	println(json.Content)
 	if result == true {
 		c.JSON(http.StatusNoContent, gin.H{})
 	} else {

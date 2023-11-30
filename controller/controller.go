@@ -373,12 +373,11 @@ func UpdateDescription(c *gin.Context) {
 	var json DescriptionRequest
 	c.BindJSON(&json)
 	target := c.Param("id")
-	filter := bson.D{bson.E{Key: "_id", Value: target}}
+	id, _ := primitive.ObjectIDFromHex(target)
+	filter := bson.D{bson.E{Key: "_id", Value: id}}
 	filter = append(filter, bson.E{Key: "user_id", Value: userID})
 	update := bson.D{{"$set", bson.D{{"description", json.Content}}}}
 	result := services.MongoClient.UpdateDescription("MDEP", "detector", filter, update)
-	println(target)
-	println(json.Content)
 	if result == true {
 		c.JSON(http.StatusNoContent, gin.H{})
 	} else {

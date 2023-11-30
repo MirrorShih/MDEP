@@ -3,11 +3,12 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Detector struct {
-	Id       primitive.ObjectID `json:"detector_id" bson:"_id,omitempty"`
-	Name     string             `json:"detector_name" bson:"name,omitempty"`
-	FileId   primitive.ObjectID `json:"file_id" bson:"file_id,omitempty"`
-	UserID   int                `json:"user_id" bson:"user_id,omitempty"`
-	UserName string             `json:"user_name" bson:"user_name,omitempty"`
+	Id          primitive.ObjectID `json:"detector_id" bson:"_id,omitempty"`
+	Name        string             `json:"detector_name" bson:"name,omitempty"`
+	FileId      primitive.ObjectID `json:"file_id" bson:"file_id,omitempty"`
+	UserID      int                `json:"user_id" bson:"user_id,omitempty"`
+	UserName    string             `json:"user_name" bson:"user_name,omitempty"`
+	Description string             `json:"description" bson:"description,omitempty"`
 }
 
 type Report struct {

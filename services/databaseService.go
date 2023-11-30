@@ -70,7 +70,7 @@ func PingMongo(client *mongo.Client, ctx context.Context) error {
 func (mongoClient *MongoDBClient) InsertDetector(databaseName, file, filename string, collectionName string, userID int, userName string) bool {
 	detectorID := mongoClient.UploadFile(databaseName, file, filename)
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
-	_, err := collection.InsertOne(MongoClient.ctx, models.Detector{primitive.NewObjectID(), filename, detectorID, userID, userName})
+	_, err := collection.InsertOne(MongoClient.ctx, models.Detector{primitive.NewObjectID(), filename, detectorID, userID, userName, ""})
 	if err != nil {
 		return false
 	}
@@ -100,6 +100,15 @@ func (mongoClient *MongoDBClient) PatchDetector(databaseName string, collectionN
 	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
 	opts := options.Update().SetUpsert(true)
 	_, err := collection.UpdateOne(mongoClient.ctx, filter, opts)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func (mongoClient *MongoDBClient) UpdateDescription(databaseName string, collectionName string, filter bson.D, update bson.D) bool {
+	collection := mongoClient.client.Database(databaseName).Collection(collectionName)
+	_, err := collection.UpdateOne(mongoClient.ctx, filter, update)
 	if err != nil {
 		return false
 	}

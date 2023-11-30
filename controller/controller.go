@@ -119,6 +119,11 @@ type TaskRequest struct {
 	FunctionType []string `json:"function_type"`
 }
 
+type DescriptionRequest struct {
+	DetectorId string `json:"detector_id"`
+	content    string `json:"content"`
+}
+
 func DownloadDetector(detectorId primitive.ObjectID, taskPath string) {
 	filter := bson.D{bson.E{Key: "_id", Value: detectorId}}
 	results := services.MongoClient.GetCertainDetector("MDEP", "detector", filter)
@@ -360,6 +365,22 @@ func DeleteReport(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{})
 	} else {
 		log.Println("delete failed")
+		c.JSON(http.StatusUnauthorized, gin.H{})
+	}
+}
+
+func UpdateDescription(c *gin.Context) {
+	userID, _ := UserFilter(c)
+	var json DescriptionRequest
+	c.BindJSON(&json)
+	filter := bson.D{bson.E{Key: "_id", Value: json.DetectorId}}
+	filter = append(filter, bson.E{Key: "user_id", Value: userID})
+	update := bson.D{{"$set", bson.D{{"description", json.content}}}}
+	result := services.MongoClient.UpdateDescription("MDEP", "detector", filter, update)
+	if result == true {
+		c.JSON(http.StatusNoContent, gin.H{})
+	} else {
+		log.Println("update failed")
 		c.JSON(http.StatusUnauthorized, gin.H{})
 	}
 }

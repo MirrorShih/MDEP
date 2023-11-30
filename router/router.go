@@ -32,6 +32,10 @@ func DELETE(engine *gin.RouterGroup, path string, handler func(c *gin.Context)) 
 	engine.DELETE(path, handler)
 }
 
+func PATCH(engine *gin.RouterGroup, path string, handler func(c *gin.Context)) {
+	engine.PATCH(path, handler)
+}
+
 func register(method func(engine *gin.RouterGroup, path string, handler func(c *gin.Context)), path string, handler func(c *gin.Context)) {
 	routes = append(routes, Route{method, path, handler})
 }
@@ -48,6 +52,7 @@ func init() {
 	register(DELETE, "/detector/:id", controller.DeleteDetector)
 	register(GET, "/dataset", controller.GetDatasetList)
 	register(GET, "/leaderboard/:dataset", controller.GetLeaderboard)
+	register(PATCH, "/detector/:id", controller.UpdateDescription)
 }
 
 func NewRouter() *gin.Engine {
